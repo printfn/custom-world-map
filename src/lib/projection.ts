@@ -1,7 +1,5 @@
 import type { Rotation } from "./rotation";
 
-// const R = 6371;
-
 export function latLongToVector3(lat: number, lon: number): [number, number, number] {
 	const x = Math.cos(lat) * Math.cos(lon);
 	const y = Math.cos(lat) * Math.sin(lon);

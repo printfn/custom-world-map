@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapImageSrc from "../assets/world.topo.200412.3x5400x2700.jpg";
 import { mapCoord } from "../lib/projection";
 import type { Rotation } from "../lib/rotation";
@@ -71,13 +71,38 @@ type Props = {
 	rotation: Rotation;
 };
 
+function getWindowSize() {
+	return {
+		width: window.innerWidth,
+		height: window.innerHeight,
+	};
+}
+
+function useWindowSize() {
+	const [windowSize, setWindowSize] = useState(getWindowSize());
+
+	useEffect(() => {
+		function handleResize() {
+			setWindowSize(getWindowSize());
+		}
+
+		window.addEventListener('resize', handleResize);
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		}
+	}, []);
+
+	return windowSize;
+}
+
 export default function Map({ rotation }: Props) {
 	const map = useRef<HTMLCanvasElement>(null);
+	const windowSize = useWindowSize();
 	useEffect(() => {
 		if (!map.current) {
 			return;
 		}
 		render(map.current, rotation);
-	}, [rotation]);
+	}, [rotation, windowSize]);
 	return <canvas className="canvas" ref={map}></canvas>;
 }

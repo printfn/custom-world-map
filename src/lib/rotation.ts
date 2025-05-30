@@ -9,7 +9,7 @@ export class Rotation {
 		if (latitude !== undefined && (latitude < -Math.TAU / 4 || latitude > Math.TAU / 4)) {
 			throw new Error(`latitude out of range: ${latitude.toFixed(3)}`);
 		}
-		this.#quat = Q.fromEuler(longitude ?? 0, -(latitude ?? 0), heading ?? 0, 'ZYX');
+		this.#quat = Q.fromEuler(longitude ?? 0, -(latitude ?? 0), -(heading ?? 0), 'ZYX');
 	}
 
 	static fromDegrees(latitude: number, longitude: number, heading: number) {
@@ -32,12 +32,12 @@ export class Rotation {
 		return this.longitudeRadians * 180 / Math.PI
 	}
 	get headingRadians() {
-		return this.#quat.toEuler('ZYX')[2];
+		return -this.#quat.toEuler('ZYX')[2];
 	}
 	get headingDegrees() {
 		return this.headingRadians * 180 / Math.PI;
 	}
-	
+
 	get quaternion() {
 		return this.#quat;
 	}
