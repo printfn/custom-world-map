@@ -43,22 +43,15 @@ function render(canvas: HTMLCanvasElement, rotation: Rotation, projection: Proje
 	const output = new ImageData(width, height);
 	for (let y = 0; y < height; ++y) {
 		for (let x = 0; x < width; ++x) {
-			const inputCoord = mapCoord(x / width, 1 - y / height, rotation, projection);
-			let ix = Math.floor((inputCoord.longitude / Math.TAU) * imageData.width);
-			let iy = Math.floor((inputCoord.latitude / Math.PI - 0.5) * imageData.height);
-			if (iy < 0) {
-				iy = -iy;
-				ix += imageData.width * 0.5;
+			const { latitude, longitude } = mapCoord(x / width, 1 - y / height, rotation, projection);
+			if (latitude < -Math.PI / 2 || latitude > Math.PI / 2) {
+				throw new Error(`invalid latitude ${latitude.toFixed(3)}`);
 			}
-			if (iy >= imageData.height) {
-				iy = iy % (2 * imageData.height);
-				if (iy >= imageData.height) {
-					iy = 2 * imageData.height - iy;
-				}
-				ix += imageData.width * 0.5;
+			if (longitude < -Math.PI || latitude > Math.PI) {
+				throw new Error(`invalid latitude ${latitude.toFixed(3)}`);
 			}
-			if (ix < 0) ix += imageData.width;
-			if (ix >= imageData.width) ix -= imageData.width;
+			const ix = Math.floor((longitude + Math.PI) / Math.TAU * imageData.width);
+			const iy = Math.floor((0.5 - latitude / Math.PI) * imageData.height);
 			output.data[(y * width + x) * 4] = imageData.data[(iy * imageData.width + ix) * 4];
 			output.data[(y * width + x) * 4 + 1] = imageData.data[(iy * imageData.width + ix) * 4 + 1];
 			output.data[(y * width + x) * 4 + 2] = imageData.data[(iy * imageData.width + ix) * 4 + 2];
