@@ -26,7 +26,8 @@ export function equirectangular(x: number, y: number) {
 	}
 }
 
-export function globe(x: number, y: number) {
+// i.e. a globe
+export function orthographic(x: number, y: number) {
 	x = (x - 0.5) * 2;
 	y = (y - 0.5) * 2;
 	const r2 = x ** 2 + y ** 2;
@@ -42,7 +43,7 @@ export function aspectRatio(projection: Projection) {
 	switch (projection.type) {
 		case 'equirectangular':
 			return 2;
-		case 'globe':
+		case 'orthographic':
 			return 1;
 	}
 }
@@ -53,8 +54,8 @@ export function mapCoord(x: number, y: number, rotation: Rotation, projection: P
 		case 'equirectangular':
 			rawCoord = equirectangular(x, y);
 			break;
-		case 'globe':
-			rawCoord = globe(x, y);
+		case 'orthographic':
+			rawCoord = orthographic(x, y);
 			break;
 	}
 	if (!rawCoord) {

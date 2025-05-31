@@ -1,4 +1,4 @@
-import { equirectangular, globe, latLongToVector3, mapCoord, unitVectorToLatLon } from "./projection"
+import { equirectangular, orthographic, latLongToVector3, mapCoord, unitVectorToLatLon } from "./projection"
 import { Rotation } from "./rotation"
 
 const EPSILON = 1e-10;
@@ -69,11 +69,11 @@ describe('rotation', () => {
 	});
 });
 
-describe('globe', () => {
+describe('orthographic', () => {
 	it('should put the origin in the center', () => {
-		expect(globe(0.5, 0.5)).toEqual({ latitude: 0, longitude: 0 });
+		expect(orthographic(0.5, 0.5)).toEqual({ latitude: 0, longitude: 0 });
 	});
 	it('should put the the north pole on top', () => {
-		expect(globe(0.5, 1)).toEqual({ latitude: Math.PI / 2, longitude: 0 });
+		expect(orthographic(0.5, 1)).toEqual({ latitude: Math.PI / 2, longitude: 0 });
 	});
 });
