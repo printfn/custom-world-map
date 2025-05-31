@@ -1,4 +1,10 @@
+import type { Projection } from "../components/ProjectionSelector";
 import type { Rotation } from "./rotation";
+
+type LatLong = {
+	latitude: number;
+	longitude: number;
+}
 
 export function latLongToVector3(lat: number, lon: number): [number, number, number] {
 	const x = Math.cos(lat) * Math.cos(lon);
@@ -13,10 +19,48 @@ export function unitVectorToLatLon(v: [number, number, number]) {
 	return { lat, lon };
 }
 
-export function mapCoord(x: number, y: number, rotation: Rotation) {
-	const rawLong = (x - 0.5) * Math.TAU;
-	const rawLat = (y - 0.5) * Math.PI;
-	const vector = latLongToVector3(rawLat, rawLong);
+export function equirectangular(x: number, y: number) {
+	return {
+		latitude: (y - 0.5) * Math.PI,
+		longitude: (x - 0.5) * Math.TAU
+	}
+}
+
+export function globe(x: number, y: number) {
+	x = (x - 0.5) * 2;
+	y = (y - 0.5) * 2;
+	const r2 = x ** 2 + y ** 2;
+	if (r2 > 1) return;
+	const z = Math.sqrt(1 - r2);
+	return {
+		latitude: Math.asin(y),
+		longitude: Math.atan2(x, z),
+	}
+}
+
+export function aspectRatio(projection: Projection) {
+	switch (projection.type) {
+		case 'equirectangular':
+			return 2;
+		case 'globe':
+			return 1;
+	}
+}
+
+export function mapCoord(x: number, y: number, rotation: Rotation, projection: Projection) {
+	let rawCoord: LatLong | undefined;
+	switch (projection.type) {
+		case 'equirectangular':
+			rawCoord = equirectangular(x, y);
+			break;
+		case 'globe':
+			rawCoord = globe(x, y);
+			break;
+	}
+	if (!rawCoord) {
+		return { longitude: 0, latitude: 0 };
+	}
+	const vector = latLongToVector3(rawCoord.latitude, rawCoord.longitude);
 	const outputVector = rotation.quaternion.rotateVector(vector);
 	const outputCoord = unitVectorToLatLon(outputVector);
 	return {

@@ -1,4 +1,4 @@
-import { latLongToVector3, mapCoord, unitVectorToLatLon } from "./projection"
+import { equirectangular, globe, latLongToVector3, mapCoord, unitVectorToLatLon } from "./projection"
 import { Rotation } from "./rotation"
 
 const EPSILON = 1e-10;
@@ -57,14 +57,23 @@ describe('latLongToVector3 + unitVectorToLatLon round trip', () => {
 
 describe('rotation', () => {
 	it('should show antarctica at the bottom if there is no rotation', () => {
-		expect(mapCoord(0.5, 0, Rotation.fromDegrees(0, 0, 0))).toEqual({ longitude: 0, latitude: -Math.PI / 2 });
-	})
+		expect(equirectangular(0.5, 0)).toEqual({ longitude: 0, latitude: -Math.PI / 2 });
+	});
 	it('basic rotations', () => {
-		expect(mapCoord(0.5, 0.5, Rotation.fromDegrees(-45, 0, 0))).toEqual({ longitude: 0, latitude: -Math.PI / 4 });
-		const actual = mapCoord(0.5, 0.5, Rotation.fromDegrees(-45, 0, 0));
+		const eq = { type: 'equirectangular' } as const;
+		const actual = mapCoord(0.5, 0.5, Rotation.fromDegrees(-45, 0, 0), eq);
 		expect(closeEnough(actual.longitude, 0)).toBeTruthy();
 		expect(closeEnough(actual.latitude, -Math.PI / 4)).toBeTruthy();
 
-		expect(mapCoord(0.5, 0.25, Rotation.fromDegrees(-45, 0, 0))).toEqual({ longitude: 0, latitude: -Math.PI / 2 });
-	})
-})
+		expect(mapCoord(0.5, 0.25, Rotation.fromDegrees(-45, 0, 0), eq)).toEqual({ longitude: 0, latitude: -Math.PI / 2 });
+	});
+});
+
+describe('globe', () => {
+	it('should put the origin in the center', () => {
+		expect(globe(0.5, 0.5)).toEqual({ latitude: 0, longitude: 0 });
+	});
+	it('should put the the north pole on top', () => {
+		expect(globe(0.5, 1)).toEqual({ latitude: Math.PI / 2, longitude: 0 });
+	});
+});

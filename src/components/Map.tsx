@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import mapImageSrc from "../assets/world.topo.200412.3x5400x2700.jpg";
-import { mapCoord } from "../lib/projection";
+import { aspectRatio, mapCoord } from "../lib/projection";
 import type { Rotation } from "../lib/rotation";
+import type { Projection } from "./ProjectionSelector";
 
 const downscaleFactor = 3;
 
@@ -32,7 +33,7 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
 	return { width, height };
 }
 
-function render(canvas: HTMLCanvasElement, rotation: Rotation) {
+function render(canvas: HTMLCanvasElement, rotation: Rotation, projection: Projection) {
 	const { width, height } = resizeCanvasToDisplaySize(canvas);
 	const ctx = canvas.getContext('2d');
 	if (!ctx) {
@@ -42,7 +43,7 @@ function render(canvas: HTMLCanvasElement, rotation: Rotation) {
 	const output = new ImageData(width, height);
 	for (let y = 0; y < height; ++y) {
 		for (let x = 0; x < width; ++x) {
-			const inputCoord = mapCoord(x / width, 1 - y / height, rotation);
+			const inputCoord = mapCoord(x / width, 1 - y / height, rotation, projection);
 			let ix = Math.floor((inputCoord.longitude / Math.TAU) * imageData.width);
 			let iy = Math.floor((inputCoord.latitude / Math.PI - 0.5) * imageData.height);
 			if (iy < 0) {
@@ -69,6 +70,7 @@ function render(canvas: HTMLCanvasElement, rotation: Rotation) {
 
 type Props = {
 	rotation: Rotation;
+	projection: Projection;
 };
 
 function getWindowSize() {
@@ -95,14 +97,19 @@ function useWindowSize() {
 	return windowSize;
 }
 
-export default function Map({ rotation }: Props) {
+export default function Map({ rotation, projection }: Props) {
 	const map = useRef<HTMLCanvasElement>(null);
 	const windowSize = useWindowSize();
 	useEffect(() => {
 		if (!map.current) {
 			return;
 		}
-		render(map.current, rotation);
-	}, [rotation, windowSize]);
-	return <canvas className="canvas" ref={map}></canvas>;
+		render(map.current, rotation, projection);
+	}, [rotation, windowSize, projection]);
+	const ratio = useMemo(() => aspectRatio(projection), [projection]);
+	const style = useMemo((): CSSProperties => ({
+		width: `calc(min(90vw, ${ratio.toString()} * 90vh))`,
+		height: `calc(min(90vh, ${(1 / ratio).toString()} * 90vw))`,
+	}), [ratio]);
+	return <canvas style={style} ref={map}></canvas>;
 }
