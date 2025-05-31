@@ -70,7 +70,7 @@ export function mapCoord(x: number, y: number, rotation: Rotation, projection: P
 			break;
 	}
 	if (!rawCoord) {
-		return { longitude: 0, latitude: 0 };
+		return;
 	}
 	const vector = latLongToVector3(rawCoord.latitude, rawCoord.longitude);
 	const outputVector = rotation.quaternion.rotateVector(vector);

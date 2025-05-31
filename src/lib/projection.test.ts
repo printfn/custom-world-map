@@ -62,6 +62,9 @@ describe('rotation', () => {
 	it('basic rotations', () => {
 		const eq = { type: 'equirectangular' } as const;
 		const actual = mapCoord(0.5, 0.5, Rotation.fromDegrees(-45, 0, 0), eq);
+		if (!actual) {
+			throw new Error('mapCoord must not return undefined');
+		}
 		expect(closeEnough(actual.longitude, 0)).toBeTruthy();
 		expect(closeEnough(actual.latitude, -Math.PI / 4)).toBeTruthy();
 

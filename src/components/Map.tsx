@@ -65,7 +65,12 @@ function render(canvas: HTMLCanvasElement, rotation: Rotation, projection: Proje
 	const output = new ImageData(width, height);
 	for (let y = 0; y < height; ++y) {
 		for (let x = 0; x < width; ++x) {
-			const { latitude, longitude } = mapCoord(x / width, 1 - y / height, rotation, projection);
+			const coords = mapCoord(x / width, 1 - y / height, rotation, projection);
+			if (!coords) {
+				output.data[(y * width + x) * 4 + 3] = 0;
+				continue;
+			}
+			const { latitude, longitude } = coords;
 			if (latitude < -Math.PI / 2 || latitude > Math.PI / 2) {
 				throw new Error(`invalid latitude ${latitude.toFixed(3)}`);
 			}
