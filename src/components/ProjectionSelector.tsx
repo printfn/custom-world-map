@@ -1,7 +1,7 @@
 import { useCallback, useId, type FormEvent } from "react";
 
 export type Projection = {
-	type: 'equirectangular' | 'orthographic';
+	type: 'equirectangular' | 'orthographic' | 'mercator';
 };
 
 type Props = {
@@ -19,6 +19,7 @@ export default function ProjectionSelector({ projection, setProjection }: Props)
 		<label htmlFor={`${id}-projection-type`}>Projection: </label>
 		<select id={`${id}-projection-type`} value={projection.type} onInput={onInput}>
 			<option value="equirectangular">Equirectangular</option>
+			<option value="mercator">Mercator</option>
 			<option value="orthographic">Orthographic (Globe)</option>
 		</select>
 	</>;

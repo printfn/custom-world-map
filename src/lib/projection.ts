@@ -22,8 +22,15 @@ export function unitVectorToLatLon(v: [number, number, number]) {
 export function equirectangular(x: number, y: number) {
 	return {
 		latitude: (y - 0.5) * Math.PI,
-		longitude: (x - 0.5) * Math.TAU
-	}
+		longitude: (x - 0.5) * Math.TAU,
+	};
+}
+
+export function mercator(x: number, y: number) {
+	return {
+		latitude: 2 * Math.atan(Math.exp((y - 0.5) * Math.TAU)) - Math.PI / 2,
+		longitude: (x - 0.5) * Math.TAU,
+	};
 }
 
 // i.e. a globe
@@ -44,6 +51,7 @@ export function aspectRatio(projection: Projection) {
 		case 'equirectangular':
 			return 2;
 		case 'orthographic':
+		case 'mercator':
 			return 1;
 	}
 }
@@ -56,6 +64,9 @@ export function mapCoord(x: number, y: number, rotation: Rotation, projection: P
 			break;
 		case 'orthographic':
 			rawCoord = orthographic(x, y);
+			break;
+		case 'mercator':
+			rawCoord = mercator(x, y);
 			break;
 	}
 	if (!rawCoord) {
