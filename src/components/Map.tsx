@@ -4,7 +4,7 @@ import { aspectRatio, mapCoord } from "../lib/projection";
 import type { Rotation } from "../lib/rotation";
 import type { Projection } from "./ProjectionSelector";
 
-const downscaleFactor = 3;
+const downscaleFactor = 1;
 
 const imageData = await (async () => {
 	const imageBlob = await (await fetch(mapImageSrc)).blob();
